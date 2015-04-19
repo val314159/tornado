@@ -580,8 +580,17 @@ class IOLoop(Configurable):
         """
         assert is_future(future)
         callback = stack_context.wrap(callback)
-        future.add_done_callback(
-            lambda future: self.add_callback(callback, future))
+        fn = lambda future: self.add_callback(callback, future)
+        future.add_done_callback( fn )
+        return fn
+
+    def remove_tag(self, tag):
+        lst = self._callbacks
+        try:
+            return lst.pop( lst.index( tag ) )
+        except:
+            return None
+        pass
 
     def _run_callback(self, callback):
         """Runs a callback with error handling.
